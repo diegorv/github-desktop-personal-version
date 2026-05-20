@@ -11,6 +11,7 @@ import {
 import { IFilterListGroup } from '../lib/filter-list'
 import { IMatches } from '../../lib/fuzzy-find'
 import { ILocalRepositoryState, Repository } from '../../models/repository'
+import { Category } from '../../models/category'
 import { Dispatcher } from '../dispatcher'
 import { Button } from '../lib/button'
 import { Octicon } from '../octicons'
@@ -33,6 +34,7 @@ const BlankSlateImage = encodePathAsUrl(__dirname, 'static/empty-no-repo.svg')
 interface IRepositoriesListProps {
   readonly selectedRepository: Repositoryish | null
   readonly repositories: ReadonlyArray<Repositoryish>
+  readonly categories: ReadonlyArray<Category>
   readonly recentRepositories: ReadonlyArray<number>
 
   /** A cache of the latest repository state values, keyed by the repository id */
@@ -122,14 +124,16 @@ export class RepositoriesList extends React.Component<
     (
       repositories: ReadonlyArray<Repositoryish> | null,
       localRepositoryStateLookup: ReadonlyMap<number, ILocalRepositoryState>,
-      recentRepositories: ReadonlyArray<number>
+      recentRepositories: ReadonlyArray<number>,
+      categories: ReadonlyArray<Category>
     ) =>
       repositories === null
         ? []
         : groupRepositories(
             repositories,
             localRepositoryStateLookup,
-            recentRepositories
+            recentRepositories,
+            categories
           )
   )
 
@@ -250,6 +254,8 @@ export class RepositoriesList extends React.Component<
       return group.owner.login
     } else if (kind === 'recent') {
       return 'Recent'
+    } else if (kind === 'category') {
+      return group.name
     } else {
       assertNever(kind, `Unknown repository group kind ${kind}`)
     }
@@ -304,11 +310,28 @@ export class RepositoriesList extends React.Component<
       onShowWorktrees: enableWorktreeSupport()
         ? this.onShowWorktrees
         : undefined,
+      categories: this.props.categories,
+      onAssignCategory: this.onAssignCategory,
+      onCreateCategory: this.onCreateCategory,
       repository: item.repository,
       shellLabel: this.props.shellLabel,
     })
 
     showContextualMenu(items)
+  }
+
+  private onAssignCategory = (
+    repository: Repository,
+    categoryId: number | null
+  ) => {
+    this.props.dispatcher.setRepositoryCategoryId(repository, categoryId)
+  }
+
+  private onCreateCategory = (repository: Repository) => {
+    this.props.dispatcher.showPopup({
+      type: PopupType.CreateCategory,
+      repository,
+    })
   }
 
   private getItemAriaLabel = (item: IRepositoryListItem) => item.repository.name
@@ -325,7 +348,8 @@ export class RepositoriesList extends React.Component<
     const groups = this.getRepositoryGroups(
       this.props.repositories,
       this.props.localRepositoryStateLookup,
-      this.props.recentRepositories
+      this.props.recentRepositories,
+      this.props.categories
     )
 
     // So there's two types of selection at play here. There's the repository
