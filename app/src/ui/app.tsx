@@ -146,6 +146,7 @@ import classNames from 'classnames'
 import { MoveToApplicationsFolder } from './move-to-applications-folder'
 import { ChangeRepositoryAlias } from './change-repository-alias/change-repository-alias-dialog'
 import { CreateCategory } from './categories/create-category-dialog'
+import { RenameCategory } from './categories/rename-category-dialog'
 import { ThankYou } from './thank-you'
 import {
   getUserContributions,
@@ -2368,6 +2369,16 @@ export class App extends React.Component<IAppProps, IAppState> {
           <CreateCategory
             dispatcher={this.props.dispatcher}
             repository={popup.repository}
+            categories={this.state.categories}
+            onDismissed={onPopupDismissedFn}
+          />
+        )
+      }
+      case PopupType.RenameCategory: {
+        return (
+          <RenameCategory
+            dispatcher={this.props.dispatcher}
+            category={popup.category}
             categories={this.state.categories}
             onDismissed={onPopupDismissedFn}
           />

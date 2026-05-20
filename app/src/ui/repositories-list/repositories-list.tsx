@@ -334,6 +334,34 @@ export class RepositoriesList extends React.Component<
     })
   }
 
+  private onGroupHeaderContextMenu = (
+    group: RepositoryListGroup,
+    event: React.MouseEvent<HTMLDivElement>
+  ) => {
+    if (group.kind !== 'category') {
+      return
+    }
+    event.preventDefault()
+
+    const category = this.props.categories.find(c => c.id === group.id)
+    if (category === undefined) {
+      return
+    }
+
+    const items: ReadonlyArray<IMenuItem> = [
+      {
+        label: __DARWIN__ ? 'Rename Category…' : 'Rename category…',
+        action: () =>
+          this.props.dispatcher.showPopup({
+            type: PopupType.RenameCategory,
+            category,
+          }),
+      },
+    ]
+
+    showContextualMenu(items)
+  }
+
   private getItemAriaLabel = (item: IRepositoryListItem) => item.repository.name
   private getGroupAriaLabelGetter =
     (
@@ -380,6 +408,7 @@ export class RepositoriesList extends React.Component<
             filterText: this.props.filterText,
           }}
           onItemContextMenu={this.onItemContextMenu}
+          onGroupHeaderContextMenu={this.onGroupHeaderContextMenu}
           getGroupAriaLabel={this.getGroupAriaLabelGetter(groups)}
           getItemAriaLabel={this.getItemAriaLabel}
           onSelectionChanged={this.onSelectionChanged}
