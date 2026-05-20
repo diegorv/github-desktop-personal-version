@@ -154,7 +154,8 @@ export class RepositoriesStore extends TypedBaseStore<
       repo.workflowPreferences,
       repo.isTutorialRepository,
       repo.gitDir,
-      repo.mainWorktreePath
+      repo.mainWorktreePath,
+      repo.categoryId ?? null
     )
   }
 
@@ -295,7 +296,8 @@ export class RepositoriesStore extends TypedBaseStore<
       repository.workflowPreferences,
       repository.isTutorialRepository,
       repository.gitDir,
-      repository.mainWorktreePath
+      repository.mainWorktreePath,
+      repository.categoryId
     )
   }
 
@@ -317,7 +319,8 @@ export class RepositoriesStore extends TypedBaseStore<
       repository.workflowPreferences,
       repository.isTutorialRepository,
       gitDir,
-      repository.mainWorktreePath
+      repository.mainWorktreePath,
+      repository.categoryId
     )
   }
 
@@ -347,6 +350,19 @@ export class RepositoriesStore extends TypedBaseStore<
     workflowPreferences: WorkflowPreferences
   ): Promise<void> {
     await this.db.repositories.update(repository.id, { workflowPreferences })
+
+    this.emitUpdatedRepositories()
+  }
+
+  /**
+   * Assign the repository to a user-defined category, or pass null to clear
+   * the assignment.
+   */
+  public async updateRepositoryCategoryId(
+    repository: Repository,
+    categoryId: number | null
+  ): Promise<void> {
+    await this.db.repositories.update(repository.id, { categoryId })
 
     this.emitUpdatedRepositories()
   }
@@ -383,7 +399,8 @@ export class RepositoriesStore extends TypedBaseStore<
       repository.workflowPreferences,
       repository.isTutorialRepository,
       gitDir,
-      mainWorktreePath
+      mainWorktreePath,
+      repository.categoryId
     )
   }
 
@@ -436,7 +453,8 @@ export class RepositoriesStore extends TypedBaseStore<
         repository.workflowPreferences,
         repository.isTutorialRepository,
         gitDir,
-        mainWorktreePath
+        mainWorktreePath,
+        repository.categoryId
       ),
       existingRepository: false,
     }
@@ -586,7 +604,8 @@ export class RepositoriesStore extends TypedBaseStore<
       repo.workflowPreferences,
       repo.isTutorialRepository,
       repo.gitDir,
-      repo.mainWorktreePath
+      repo.mainWorktreePath,
+      repo.categoryId
     )
 
     assertIsRepositoryWithGitHubRepository(updatedRepo)
