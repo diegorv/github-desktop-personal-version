@@ -102,6 +102,36 @@ export class CategoriesStore extends TypedBaseStore<ReadonlyArray<Category>> {
   }
 
   /**
+   * Set or clear the color associated with a category. The `color` value is
+   * an opaque palette identifier (see CategoryColors); pass null to clear.
+   * Returns true when the underlying record actually changed.
+   */
+  public async setColor(id: number, color: string | null): Promise<boolean> {
+    const changed = await this.db.transaction(
+      'rw',
+      this.db.categories,
+      async () => {
+        const existing = await this.db.categories.get(id)
+        if (existing === undefined) {
+          return false
+        }
+        const currentColor = existing.color ?? null
+        if (currentColor === color) {
+          return false
+        }
+        await this.db.categories.update(id, { color })
+        return true
+      }
+    )
+
+    if (changed) {
+      this.emitUpdatedCategories()
+    }
+
+    return changed
+  }
+
+  /**
    * Delete a category. Any repositories currently assigned to it have their
    * `categoryId` cleared so they fall back to their default sidebar group.
    * Runs in a single transaction so the unassign and the delete either both
