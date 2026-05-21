@@ -109,6 +109,7 @@ const DefaultDailyMeasures: IDailyMeasures = {
   categoryAssignedCount: 0,
   categoryRenamedCount: 0,
   categoryDeletedCount: 0,
+  categoryColorChangedCount: 0,
   dotcomPushCount: 0,
   dotcomForcePushCount: 0,
   enterprisePushCount: 0,
@@ -871,6 +872,8 @@ export class StatsStore implements IStatsStore {
   public recordCategoryAssigned = () => this.increment('categoryAssignedCount')
   public recordCategoryRenamed = () => this.increment('categoryRenamedCount')
   public recordCategoryDeleted = () => this.increment('categoryDeletedCount')
+  public recordCategoryColorChanged = () =>
+    this.increment('categoryColorChangedCount')
 
   /** Set whether the user has opted out of stats reporting. */
   public async setOptOut(

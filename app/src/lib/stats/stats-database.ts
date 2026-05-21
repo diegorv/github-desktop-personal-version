@@ -83,6 +83,9 @@ export interface IDailyMeasures {
   /** Number of user-defined repository categories deleted. */
   readonly categoryDeletedCount: number
 
+  /** Number of times the color assigned to a user-defined category changed (including set-to-null). */
+  readonly categoryColorChangedCount: number
+
   /** The number of times the user pushes to GitHub.com */
   readonly dotcomPushCount: number
 
