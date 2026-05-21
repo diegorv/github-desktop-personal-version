@@ -128,6 +128,34 @@ describe('CategoriesStore', () => {
     })
   })
 
+  describe('setColor', () => {
+    it('persists a new color', async () => {
+      const created = await categoriesStore.create('Work')
+      const changed = await categoriesStore.setColor(created!.id, 'blue')
+      assert.equal(changed, true)
+
+      const all = await categoriesStore.getAll()
+      assert.equal(all[0].color, 'blue')
+    })
+
+    it('returns false when the color is already the current value', async () => {
+      const created = await categoriesStore.create('Work')
+      await categoriesStore.setColor(created!.id, 'blue')
+      const again = await categoriesStore.setColor(created!.id, 'blue')
+      assert.equal(again, false)
+    })
+
+    it('clears the color when passed null', async () => {
+      const created = await categoriesStore.create('Work')
+      await categoriesStore.setColor(created!.id, 'blue')
+      const cleared = await categoriesStore.setColor(created!.id, null)
+      assert.equal(cleared, true)
+
+      const all = await categoriesStore.getAll()
+      assert.equal(all[0].color, null)
+    })
+  })
+
   describe('getAll', () => {
     it('returns categories sorted case-insensitively by name', async () => {
       await categoriesStore.create('zeta')

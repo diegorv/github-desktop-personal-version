@@ -253,5 +253,16 @@ describe('repository list grouping', () => {
       assert.equal(grouped.length, 1)
       assert.equal(grouped[0].identifier.kind, 'dotcom')
     })
+
+    it('carries the category color into the group identifier', () => {
+      const colored = new Category(30, 'Design', 'pink')
+      const repo = repoWithCategory('mockup', 1, colored.id)
+      const grouped = groupRepositories([repo], cache, [], [colored])
+      const group = grouped.find(g => g.identifier.kind === 'category')!
+      assert.equal(
+        (group.identifier as { kind: 'category'; color: string | null }).color,
+        'pink'
+      )
+    })
   })
 })
