@@ -23,6 +23,8 @@ export type RepositoryListGroup =
       kind: 'category'
       id: number
       name: string
+      /** Palette identifier (see CategoryColors) — null when no color set. */
+      color: string | null
     }
   | {
       kind: 'dotcom'
@@ -81,7 +83,12 @@ const getGroupForRepository = (
   if (repo instanceof Repository && repo.categoryId !== null) {
     const category = categoriesById.get(repo.categoryId)
     if (category !== undefined) {
-      return { kind: 'category', id: category.id, name: category.name }
+      return {
+        kind: 'category',
+        id: category.id,
+        name: category.name,
+        color: category.color,
+      }
     }
     // Category was deleted while the repo still referenced it — fall through to
     // the default grouping rather than dropping the repo.
@@ -123,15 +130,13 @@ export function groupRepositories(
   // Seed an empty bucket for every known category so they remain visible even
   // when no repos are assigned to them yet.
   for (const category of categories) {
-    const key = getGroupKey({
+    const group: RepositoryListGroup = {
       kind: 'category',
       id: category.id,
       name: category.name,
-    })
-    groups.set(key, {
-      group: { kind: 'category', id: category.id, name: category.name },
-      repos: [],
-    })
+      color: category.color,
+    }
+    groups.set(getGroupKey(group), { group, repos: [] })
   }
 
   for (const repo of repositories) {

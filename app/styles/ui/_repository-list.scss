@@ -74,6 +74,15 @@
     white-space: nowrap;
   }
 
+  // Vertical color stripe rendered on the left edge of every row that
+  // belongs to a colored category (header + each repository row). The
+  // hex is passed through inline style as --category-color.
+  .filter-list-group-header.has-category-color,
+  .repository-list-item.has-category-color {
+    border-left: 3px solid var(--category-color);
+    padding-left: calc(var(--spacing) - 3px);
+  }
+
   .new-repository-button {
     flex-shrink: 0;
 

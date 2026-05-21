@@ -24,6 +24,10 @@ import { TooltippedContent } from '../lib/tooltipped-content'
 import memoizeOne from 'memoize-one'
 import { KeyboardShortcut } from '../keyboard-shortcut/keyboard-shortcut'
 import { generateRepositoryListContextMenu } from '../repositories-list/repository-list-item-context-menu'
+import {
+  CategoryColors,
+  findCategoryColor,
+} from '../categories/category-colors'
 import { SectionFilterList } from '../lib/section-filter-list'
 import { assertNever } from '../../lib/fatal-error'
 import { IAheadBehind } from '../../models/branch'
@@ -156,8 +160,29 @@ export class RepositoriesList extends React.Component<
     }
   }
 
+  private getCategoryColorById = memoizeOne(
+    (categories: ReadonlyArray<Category>) => {
+      const map = new Map<number, string>()
+      for (const c of categories) {
+        if (c.color === null) {
+          continue
+        }
+        const swatch = findCategoryColor(c.color)
+        if (swatch !== undefined) {
+          map.set(c.id, swatch.hex)
+        }
+      }
+      return map
+    }
+  )
+
   private renderItem = (item: IRepositoryListItem, matches: IMatches) => {
     const repository = item.repository
+    const categoryId =
+      repository instanceof Repository ? repository.categoryId : null
+    const colorMap = this.getCategoryColorById(this.props.categories)
+    const categoryColorHex =
+      categoryId !== null ? colorMap.get(categoryId) ?? null : null
     return (
       <RepositoryListItem
         key={repository.id}
@@ -166,6 +191,7 @@ export class RepositoriesList extends React.Component<
         matches={matches}
         aheadBehind={item.aheadBehind}
         changedFilesCount={item.changedFilesCount}
+        categoryColorHex={categoryColorHex}
       />
     )
   }
@@ -262,14 +288,27 @@ export class RepositoriesList extends React.Component<
 
   private renderGroupHeader = (group: RepositoryListGroup) => {
     const label = this.getGroupLabel(group)
+    const colorHex =
+      group.kind === 'category' && group.color !== null
+        ? findCategoryColor(group.color)?.hex
+        : undefined
+
+    const className = colorHex
+      ? 'filter-list-group-header has-category-color'
+      : 'filter-list-group-header'
+
+    const style = colorHex
+      ? ({ '--category-color': colorHex } as React.CSSProperties)
+      : undefined
 
     return (
       <TooltippedContent
         key={getGroupKey(group)}
-        className="filter-list-group-header"
+        className={className}
         tooltip={label}
         onlyWhenOverflowed={true}
         tagName="div"
+        style={style}
       >
         {label}
       </TooltippedContent>
@@ -341,6 +380,21 @@ export class RepositoriesList extends React.Component<
       return
     }
 
+    const colorSubmenu: IMenuItem[] = CategoryColors.map(c => ({
+      label: c.label,
+      type: 'checkbox',
+      checked: category.color === c.id,
+      action: () => this.props.dispatcher.setCategoryColor(category, c.id),
+    }))
+    colorSubmenu.push({ type: 'separator' })
+    colorSubmenu.push({
+      label: __DARWIN__ ? 'No Color' : 'No color',
+      type: 'checkbox',
+      checked: category.color === null,
+      enabled: category.color !== null,
+      action: () => this.props.dispatcher.setCategoryColor(category, null),
+    })
+
     const items: ReadonlyArray<IMenuItem> = [
       {
         label: __DARWIN__ ? 'Rename Category…' : 'Rename category…',
@@ -349,6 +403,10 @@ export class RepositoriesList extends React.Component<
             type: PopupType.RenameCategory,
             category,
           }),
+      },
+      {
+        label: __DARWIN__ ? 'Set Color' : 'Set color',
+        submenu: colorSubmenu,
       },
       {
         label: __DARWIN__ ? 'Delete Category' : 'Delete category',
