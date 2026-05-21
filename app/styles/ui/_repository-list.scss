@@ -74,13 +74,17 @@
     white-space: nowrap;
   }
 
-  // Vertical color stripe rendered on the left edge of every row that
-  // belongs to a colored category (header + each repository row). The
-  // hex is passed through inline style as --category-color.
-  .filter-list-group-header.has-category-color,
-  .repository-list-item.has-category-color {
-    border-left: 3px solid var(--category-color);
-    padding-left: calc(var(--spacing) - 3px);
+  // Colored category headers: tint the label text and let the color fade
+  // softly downward into the first repository rows. Color is injected as
+  // the --category-color CSS custom property by the renderer.
+  .filter-list-group-header.has-category-color {
+    color: var(--category-color);
+    background: linear-gradient(
+      to bottom,
+      color-mix(in srgb, var(--category-color) 18%, transparent) 0%,
+      transparent 100%
+    );
+    font-weight: var(--font-weight-semibold);
   }
 
   .new-repository-button {
