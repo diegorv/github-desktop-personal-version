@@ -26,6 +26,9 @@ interface ITooltippedContentProps
   /** An optional class name to set on the wrapper element */
   readonly className?: string
 
+  /** Inline style applied to the wrapper element. */
+  readonly style?: React.CSSProperties
+
   /** Open on target focus */
   readonly openOnFocus?: boolean
 
@@ -46,13 +49,21 @@ export class TooltippedContent extends React.Component<ITooltippedContentProps> 
   private wrapperRef = createObservableRef<HTMLElement>()
 
   public render() {
-    const { tooltip, tagName, children, className, tooltipClassName, ...rest } =
-      this.props
+    const {
+      tooltip,
+      tagName,
+      children,
+      className,
+      tooltipClassName,
+      style,
+      ...rest
+    } = this.props
 
     return React.createElement(tagName ?? 'span', {
       id: this.props.id,
       ref: this.wrapperRef,
       className: className,
+      style: style,
       children: (
         <>
           {tooltip !== undefined && (
