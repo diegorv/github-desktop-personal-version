@@ -78,6 +78,17 @@
   // softly downward into the first repository rows. Color is injected as
   // the --category-color CSS custom property by the renderer.
   .filter-list-group-header.has-category-color {
+    // Parent .list-item-content-wrapper is a flex container; without this
+    // the header collapses to the width of its text and the gradient stops
+    // at the label.
+    flex: 1;
+    align-self: stretch;
+    // Match the vertical centering of repository rows. The base rule has a
+    // padding-top that pushes the label above the row center; override it
+    // and center the content via flex.
+    display: flex;
+    align-items: center;
+    padding: 0 var(--spacing);
     color: var(--category-color);
     background: linear-gradient(
       to bottom,
