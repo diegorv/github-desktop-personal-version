@@ -161,29 +161,8 @@ export class RepositoriesList extends React.Component<
     }
   }
 
-  private getCategoryColorById = memoizeOne(
-    (categories: ReadonlyArray<Category>) => {
-      const map = new Map<number, string>()
-      for (const c of categories) {
-        if (c.color === null) {
-          continue
-        }
-        const swatch = findCategoryColor(c.color)
-        if (swatch !== undefined) {
-          map.set(c.id, swatch.hex)
-        }
-      }
-      return map
-    }
-  )
-
   private renderItem = (item: IRepositoryListItem, matches: IMatches) => {
     const repository = item.repository
-    const categoryId =
-      repository instanceof Repository ? repository.categoryId : null
-    const colorMap = this.getCategoryColorById(this.props.categories)
-    const categoryColorHex =
-      categoryId !== null ? colorMap.get(categoryId) ?? null : null
     return (
       <RepositoryListItem
         key={repository.id}
@@ -192,7 +171,6 @@ export class RepositoriesList extends React.Component<
         matches={matches}
         aheadBehind={item.aheadBehind}
         changedFilesCount={item.changedFilesCount}
-        categoryColorHex={categoryColorHex}
       />
     )
   }
