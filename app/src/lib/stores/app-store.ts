@@ -5046,6 +5046,17 @@ export class AppStore extends TypedBaseStore<IAppState> {
   }
 
   /** This shouldn't be called directly. See `Dispatcher`. */
+  public async _setCategoryColor(
+    category: Category,
+    color: string | null
+  ): Promise<void> {
+    const changed = await this.categoriesStore.setColor(category.id, color)
+    if (changed) {
+      this.statsStore.recordCategoryColorChanged()
+    }
+  }
+
+  /** This shouldn't be called directly. See `Dispatcher`. */
   public async _deleteCategory(category: Category): Promise<void> {
     await this.categoriesStore.delete(category.id)
     this.statsStore.recordCategoryDeleted()

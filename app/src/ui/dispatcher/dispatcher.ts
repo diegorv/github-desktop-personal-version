@@ -913,6 +913,18 @@ export class Dispatcher {
     return this.appStore._deleteCategory(category)
   }
 
+  /**
+   * Set or clear the color associated with a category. `color` is an opaque
+   * palette identifier (see `app/src/ui/categories/category-colors`);
+   * pass null to clear the assignment.
+   */
+  public setCategoryColor(
+    category: Category,
+    color: string | null
+  ): Promise<void> {
+    return this.appStore._setCategoryColor(category, color)
+  }
+
   /** Rename the branch to a new name. */
   public renameBranch(
     repository: Repository,
