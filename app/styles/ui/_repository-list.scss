@@ -22,6 +22,11 @@
    */
   .repository-list-item {
     padding: 0 var(--spacing);
+    position: relative;
+    // Match the parent .list-item row height so the in-colored-category
+    // guide line (::before) spans edge-to-edge with no vertical gaps
+    // between consecutive rows.
+    height: 100%;
 
     // Layout the icon and repository name horizontally
     display: flex;
@@ -74,6 +79,29 @@
     white-space: nowrap;
   }
 
+  // Repositories that belong to a colored category get a file-tree style
+  // indent + vertical guide line that connects them visually to the
+  // category header dot above.
+  .repository-list-item.in-colored-category {
+    padding-left: calc(var(--spacing) + 12px);
+
+    &::before {
+      content: '';
+      position: absolute;
+      // Centered under the 8px header dot: header padding-left (var(--spacing))
+      // + half the dot width (4px) = 14px.
+      left: 14px;
+      top: 0;
+      bottom: 0;
+      width: 1px;
+      background: color-mix(
+        in srgb,
+        var(--category-color) 45%,
+        transparent
+      );
+    }
+  }
+
   // Colored category headers: 8px round dot before the label in the
   // category color. Color is injected as the --category-color CSS custom
   // property by the renderer.
@@ -83,6 +111,7 @@
     display: flex;
     align-items: center;
     padding: 0 var(--spacing);
+    position: relative;
 
     &::before {
       content: '';
@@ -93,6 +122,23 @@
       background: var(--category-color);
       margin-right: var(--spacing-half);
       flex-shrink: 0;
+    }
+
+    // Connector that drops from the bottom of the dot down to the bottom of
+    // the header row so the guide line under the first repository appears
+    // to flow out of the category dot itself.
+    &::after {
+      content: '';
+      position: absolute;
+      left: 14px;
+      top: calc(50% + 4px);
+      bottom: 0;
+      width: 1px;
+      background: color-mix(
+        in srgb,
+        var(--category-color) 45%,
+        transparent
+      );
     }
   }
 

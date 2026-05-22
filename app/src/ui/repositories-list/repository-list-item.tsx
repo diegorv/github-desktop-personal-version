@@ -27,6 +27,12 @@ interface IRepositoryListItemProps {
 
   /** Number of uncommitted changes */
   readonly changedFilesCount: number
+
+  /** Belongs to a category that has a color assigned. */
+  readonly inColoredCategory: boolean
+
+  /** Hex of the category color, or null when no color applies. */
+  readonly categoryColorHex: string | null
 }
 
 /** A repository item. */
@@ -54,8 +60,20 @@ export class RepositoryListItem extends React.Component<
       alias: alias !== null,
     })
 
+    const style = this.props.categoryColorHex
+      ? ({
+          '--category-color': this.props.categoryColorHex,
+        } as React.CSSProperties)
+      : undefined
+
     return (
-      <div className="repository-list-item" ref={this.listItemRef}>
+      <div
+        className={classNames('repository-list-item', {
+          'in-colored-category': this.props.inColoredCategory,
+        })}
+        ref={this.listItemRef}
+        style={style}
+      >
         <Tooltip
           target={this.listItemRef}
           disabled={enableAccessibleListToolTips()}
@@ -109,7 +127,9 @@ export class RepositoryListItem extends React.Component<
     ) {
       return (
         nextProps.repository.id !== this.props.repository.id ||
-        nextProps.matches !== this.props.matches
+        nextProps.matches !== this.props.matches ||
+        nextProps.inColoredCategory !== this.props.inColoredCategory ||
+        nextProps.categoryColorHex !== this.props.categoryColorHex
       )
     } else {
       return true

@@ -14,6 +14,7 @@ import { IAheadBehind } from '../../models/branch'
 import { assertNever } from '../../lib/fatal-error'
 import { isDotCom } from '../../lib/endpoint-capabilities'
 import { Owner } from '../../models/owner'
+import { findCategoryColor } from '../categories/category-colors'
 
 export type RepositoryListGroup =
   | {
@@ -69,6 +70,9 @@ export interface IRepositoryListItem extends IFilterListItem {
   readonly needsDisambiguation: boolean
   readonly aheadBehind: IAheadBehind | null
   readonly changedFilesCount: number
+  readonly inColoredCategory: boolean
+  /** Hex value of the category color, or null when no color applies. */
+  readonly categoryColorHex: string | null
 }
 
 const recentRepositoriesThreshold = 7
@@ -189,6 +193,13 @@ const toSortedListItems = (
     }
   }
 
+  const inColoredCategory =
+    group.kind === 'category' && group.color !== null
+  const categoryColorHex =
+    group.kind === 'category' && group.color !== null
+      ? findCategoryColor(group.color)?.hex ?? null
+      : null
+
   return repositories
     .map(r => {
       const repoState = localRepositoryStateLookup.get(r.id)
@@ -209,6 +220,8 @@ const toSortedListItems = (
           ((allNames.get(title) ?? 0) > 1 && group.kind === 'recent'),
         aheadBehind: repoState?.aheadBehind ?? null,
         changedFilesCount: repoState?.changedFilesCount ?? 0,
+        inColoredCategory,
+        categoryColorHex,
       }
     })
     .sort(({ repository: x }, { repository: y }) =>
